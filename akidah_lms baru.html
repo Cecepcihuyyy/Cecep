@@ -1,0 +1,886 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Smart Akidah · MTs Kelas 7</title>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&family=Amiri:wght@400;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --primary: #1b5e20;
+    --primary-light: #2e7d32;
+    --primary-pale: #e8f5e9;
+    --accent: #ffd600;
+    --accent-dark: #f9a825;
+    --bg: #f0f4f1;
+    --white: #ffffff;
+    --text: #1a1a1a;
+    --text-muted: #5a6a5e;
+    --border: rgba(27,94,32,0.15);
+    --radius: 14px;
+    --radius-sm: 8px;
+    --shadow: 0 2px 12px rgba(0,0,0,0.07);
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Poppins', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    display: flex;
+    min-height: 100vh;
+  }
+
+  /* ── SIDEBAR ── */
+  #sidebar {
+    width: 270px;
+    background: var(--primary);
+    color: #fff;
+    height: 100vh;
+    position: fixed;
+    left: 0; top: 0;
+    display: flex;
+    flex-direction: column;
+    transition: transform .3s ease;
+    z-index: 1000;
+    overflow-y: auto;
+  }
+  #sidebar.closed { transform: translateX(-270px); }
+
+  .sidebar-header {
+    padding: 28px 24px 20px;
+    border-bottom: 1px solid rgba(255,255,255,.12);
+  }
+  .sidebar-logo {
+    display: flex; align-items: center; gap: 10px; margin-bottom: 4px;
+  }
+  .sidebar-logo .icon {
+    width: 36px; height: 36px;
+    background: var(--accent);
+    border-radius: 10px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 18px; flex-shrink: 0;
+  }
+  .sidebar-logo h1 { font-size: 18px; font-weight: 600; color: #fff; }
+  .sidebar-sub { font-size: 11px; color: rgba(255,255,255,.6); padding-left: 46px; }
+
+  .nav-section { padding: 16px 16px 0; }
+  .nav-label { font-size: 10px; font-weight: 600; color: rgba(255,255,255,.4); letter-spacing: .08em; text-transform: uppercase; padding: 0 8px 8px; }
+
+  .nav-link {
+    display: flex; align-items: center; gap: 10px;
+    color: rgba(255,255,255,.85);
+    padding: 10px 12px;
+    text-decoration: none;
+    border-radius: var(--radius-sm);
+    margin-bottom: 3px;
+    font-size: 14px;
+    transition: background .2s, color .2s, padding-left .2s;
+  }
+  .nav-link .nav-num {
+    width: 22px; height: 22px;
+    background: rgba(255,255,255,.1);
+    border-radius: 6px;
+    font-size: 11px; font-weight: 600;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+  }
+  .nav-link:hover { background: rgba(255,255,255,.12); color: #fff; padding-left: 16px; }
+  .nav-link.active { background: var(--accent); color: var(--primary); }
+  .nav-link.active .nav-num { background: rgba(27,94,32,.2); }
+
+  .progress-area { padding: 16px 16px 24px; margin-top: auto; }
+  .progress-label { font-size: 12px; color: rgba(255,255,255,.6); margin-bottom: 8px; display: flex; justify-content: space-between; }
+  .progress-bar { height: 6px; background: rgba(255,255,255,.15); border-radius: 99px; overflow: hidden; }
+  .progress-fill { height: 100%; background: var(--accent); border-radius: 99px; transition: width .4s ease; }
+
+  /* ── TOPBAR ── */
+  .top-bar {
+    position: fixed; top: 0; left: 270px; right: 0;
+    height: 64px;
+    background: var(--white);
+    display: flex; align-items: center;
+    padding: 0 28px;
+    border-bottom: 1px solid var(--border);
+    gap: 12px;
+    z-index: 900;
+    transition: left .3s ease;
+  }
+  .top-bar.full { left: 0; }
+
+  .toggle-btn {
+    width: 36px; height: 36px;
+    background: var(--primary-pale);
+    border: none; border-radius: var(--radius-sm);
+    cursor: pointer; color: var(--primary);
+    font-size: 16px;
+    display: flex; align-items: center; justify-content: center;
+    transition: background .2s;
+    flex-shrink: 0;
+  }
+  .toggle-btn:hover { background: #c8e6c9; }
+
+  .search-wrap { flex: 1; max-width: 360px; position: relative; }
+  .search-wrap svg { position: absolute; left: 12px; top: 50%; transform: translateY(-50%); pointer-events: none; }
+  .search-wrap input {
+    width: 100%; padding: 9px 12px 9px 38px;
+    border: 1px solid var(--border);
+    border-radius: 99px;
+    font-family: 'Poppins', sans-serif;
+    font-size: 13px;
+    background: var(--bg);
+    color: var(--text);
+    outline: none;
+    transition: border-color .2s;
+  }
+  .search-wrap input:focus { border-color: var(--primary); background: #fff; }
+
+  .filter-pills { display: flex; gap: 6px; margin-left: auto; }
+  .pill {
+    padding: 6px 14px;
+    border-radius: 99px;
+    border: 1px solid var(--border);
+    background: transparent;
+    font-family: 'Poppins', sans-serif;
+    font-size: 12px; font-weight: 500;
+    color: var(--text-muted);
+    cursor: pointer;
+    transition: all .2s;
+  }
+  .pill:hover { border-color: var(--primary); color: var(--primary); }
+  .pill.active { background: var(--primary); border-color: var(--primary); color: #fff; }
+
+  /* ── MAIN ── */
+  .main-content {
+    margin-left: 270px;
+    padding: 90px 32px 48px;
+    width: 100%;
+    max-width: 900px;
+    transition: margin-left .3s ease;
+  }
+  .main-content.full { margin-left: 0; }
+
+  /* ── HERO BANNER ── */
+  .hero {
+    background: var(--primary);
+    border-radius: var(--radius);
+    padding: 28px 32px;
+    color: #fff;
+    margin-bottom: 28px;
+    display: flex; align-items: center; justify-content: space-between; gap: 16px;
+  }
+  .hero-text h2 { font-size: 22px; font-weight: 600; margin-bottom: 6px; }
+  .hero-text p { font-size: 14px; color: rgba(255,255,255,.75); }
+  .hero-badge {
+    background: var(--accent);
+    color: var(--primary);
+    padding: 6px 14px;
+    border-radius: 99px;
+    font-size: 12px; font-weight: 600;
+    white-space: nowrap;
+  }
+
+  /* ── CARDS ── */
+  .card {
+    background: var(--white);
+    border-radius: var(--radius);
+    padding: 24px 28px;
+    margin-bottom: 20px;
+    border: 1px solid var(--border);
+    box-shadow: var(--shadow);
+    transition: box-shadow .2s;
+  }
+  .card:hover { box-shadow: 0 4px 20px rgba(0,0,0,.1); }
+
+  .card-header {
+    display: flex; align-items: center; gap: 12px; margin-bottom: 18px;
+  }
+  .card-icon {
+    width: 40px; height: 40px;
+    background: var(--primary-pale);
+    border-radius: var(--radius-sm);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 18px; flex-shrink: 0;
+  }
+  .card h2 { font-size: 17px; font-weight: 600; color: var(--primary); }
+
+  .card p { font-size: 14px; color: var(--text-muted); line-height: 1.7; margin-bottom: 10px; }
+  .card p strong { color: var(--text); }
+  .card ul { padding-left: 0; list-style: none; display: flex; flex-direction: column; gap: 8px; }
+  .card li {
+    display: flex; align-items: flex-start; gap: 10px;
+    font-size: 14px; color: var(--text-muted); line-height: 1.6;
+    background: var(--bg);
+    padding: 10px 14px;
+    border-radius: var(--radius-sm);
+    border-left: 3px solid var(--primary-light);
+  }
+  .card li strong { color: var(--text); }
+
+  /* ── ARABIC ── */
+  .arabic-block {
+    background: var(--primary-pale);
+    border-radius: var(--radius-sm);
+    padding: 20px;
+    text-align: center;
+    margin: 12px 0;
+    border: 1px solid rgba(27,94,32,.15);
+  }
+  .arabic-text {
+    font-family: 'Amiri', serif;
+    font-size: 2.2rem;
+    color: var(--primary);
+    direction: rtl;
+    line-height: 1.8;
+    margin-bottom: 8px;
+  }
+  .arabic-ref { font-size: 12px; color: var(--text-muted); }
+
+  /* ── RUKUN IMAN GRID ── */
+  .rukun-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 12px;
+    margin-top: 16px;
+  }
+  .rukun-item {
+    background: var(--bg);
+    border-radius: var(--radius-sm);
+    padding: 16px;
+    border: 1px solid var(--border);
+    cursor: pointer;
+    transition: all .2s;
+    text-align: center;
+  }
+  .rukun-item:hover { border-color: var(--primary); background: var(--primary-pale); transform: translateY(-2px); }
+  .rukun-item.active { border-color: var(--primary); background: var(--primary); color: #fff; }
+  .rukun-item.active .rukun-num { background: rgba(255,255,255,.2); color: #fff; }
+  .rukun-item.active .rukun-title { color: #fff; }
+  .rukun-item.active .rukun-desc { color: rgba(255,255,255,.75); }
+  .rukun-num {
+    width: 32px; height: 32px;
+    background: var(--primary-pale);
+    color: var(--primary);
+    border-radius: 50%;
+    font-size: 13px; font-weight: 600;
+    display: flex; align-items: center; justify-content: center;
+    margin: 0 auto 10px;
+  }
+  .rukun-title { font-size: 13px; font-weight: 600; color: var(--text); margin-bottom: 4px; }
+  .rukun-desc { font-size: 11px; color: var(--text-muted); }
+
+  .rukun-detail {
+    background: var(--primary-pale);
+    border-radius: var(--radius-sm);
+    padding: 16px;
+    margin-top: 16px;
+    border: 1px solid rgba(27,94,32,.2);
+    font-size: 14px;
+    color: var(--primary);
+    min-height: 56px;
+    transition: all .2s;
+  }
+  .rukun-detail strong { color: var(--primary); display: block; margin-bottom: 4px; }
+
+  /* ── FLASHCARD ── */
+  .flashcard-wrap {
+    perspective: 1000px;
+    margin: 16px 0;
+    height: 160px;
+  }
+  .flashcard {
+    width: 100%; height: 160px;
+    position: relative;
+    transform-style: preserve-3d;
+    transition: transform .55s ease;
+    cursor: pointer;
+  }
+  .flashcard.flipped { transform: rotateY(180deg); }
+  .card-face {
+    position: absolute;
+    inset: 0;
+    border-radius: var(--radius-sm);
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+    padding: 24px;
+    backface-visibility: hidden;
+    -webkit-backface-visibility: hidden;
+    text-align: center;
+  }
+  .card-front {
+    background: var(--primary);
+    color: #fff;
+  }
+  .card-back {
+    background: var(--accent);
+    color: var(--primary);
+    transform: rotateY(180deg);
+  }
+  .card-face .label { font-size: 11px; font-weight: 600; letter-spacing: .06em; text-transform: uppercase; opacity: .7; margin-bottom: 10px; }
+  .card-face .content { font-size: 16px; font-weight: 500; }
+  .flashcard-hint { text-align: center; font-size: 12px; color: var(--text-muted); margin-top: 8px; }
+  .flashcard-nav { display: flex; align-items: center; justify-content: center; gap: 12px; margin-top: 14px; }
+  .fc-btn {
+    padding: 8px 20px;
+    border-radius: var(--radius-sm);
+    border: 1px solid var(--border);
+    background: var(--white);
+    font-family: 'Poppins', sans-serif;
+    font-size: 13px; font-weight: 500;
+    cursor: pointer;
+    color: var(--text);
+    transition: all .2s;
+  }
+  .fc-btn:hover { background: var(--primary-pale); border-color: var(--primary); color: var(--primary); }
+  .fc-count { font-size: 13px; color: var(--text-muted); min-width: 60px; text-align: center; }
+
+  /* ── QUIZ ── */
+  .quiz-q {
+    font-size: 15px; font-weight: 500; color: var(--text);
+    margin-bottom: 18px; line-height: 1.6;
+  }
+  .quiz-progress {
+    display: flex; gap: 4px; margin-bottom: 18px;
+  }
+  .qp-dot {
+    flex: 1; height: 4px;
+    background: var(--border);
+    border-radius: 99px;
+    transition: background .3s;
+  }
+  .qp-dot.done { background: var(--primary); }
+  .qp-dot.correct { background: #2e7d32; }
+  .qp-dot.wrong { background: #c62828; }
+
+  .options-grid { display: flex; flex-direction: column; gap: 10px; }
+  .quiz-option {
+    display: flex; align-items: center; gap: 12px;
+    width: 100%; padding: 13px 16px;
+    border: 1.5px solid var(--border);
+    border-radius: var(--radius-sm);
+    background: var(--white);
+    font-family: 'Poppins', sans-serif;
+    font-size: 14px; text-align: left;
+    cursor: pointer;
+    transition: all .2s;
+    color: var(--text);
+  }
+  .quiz-option:hover:not(:disabled) { border-color: var(--primary); background: var(--primary-pale); }
+  .quiz-option.correct { border-color: #2e7d32; background: #e8f5e9; color: #1b5e20; }
+  .quiz-option.wrong { border-color: #c62828; background: #ffebee; color: #b71c1c; }
+  .quiz-option:disabled { cursor: default; }
+  .opt-letter {
+    width: 26px; height: 26px;
+    border-radius: 6px;
+    background: var(--bg);
+    font-size: 12px; font-weight: 600; color: var(--text-muted);
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+    transition: all .2s;
+  }
+  .quiz-option.correct .opt-letter { background: #2e7d32; color: #fff; }
+  .quiz-option.wrong .opt-letter { background: #c62828; color: #fff; }
+
+  .quiz-feedback {
+    margin-top: 14px;
+    padding: 12px 16px;
+    border-radius: var(--radius-sm);
+    font-size: 14px; font-weight: 500;
+    display: none;
+  }
+  .quiz-feedback.show { display: block; }
+  .quiz-feedback.ok { background: #e8f5e9; color: #1b5e20; border: 1px solid #a5d6a7; }
+  .quiz-feedback.fail { background: #ffebee; color: #b71c1c; border: 1px solid #ef9a9a; }
+
+  .quiz-nav { display: flex; justify-content: space-between; align-items: center; margin-top: 16px; }
+  .btn-primary {
+    padding: 10px 22px;
+    background: var(--primary);
+    color: #fff;
+    border: none; border-radius: var(--radius-sm);
+    font-family: 'Poppins', sans-serif;
+    font-size: 14px; font-weight: 500;
+    cursor: pointer;
+    transition: background .2s;
+  }
+  .btn-primary:hover { background: var(--primary-light); }
+  .btn-primary:disabled { opacity: .4; cursor: default; }
+
+  .score-badge {
+    font-size: 13px; color: var(--text-muted);
+  }
+  .score-badge span { font-weight: 600; color: var(--primary); }
+
+  /* ── RESULT ── */
+  .result-box {
+    text-align: center; padding: 20px;
+    background: var(--primary-pale);
+    border-radius: var(--radius-sm);
+    border: 1px solid rgba(27,94,32,.2);
+    display: none;
+  }
+  .result-box.show { display: block; }
+  .result-score { font-size: 48px; font-weight: 600; color: var(--primary); line-height: 1; }
+  .result-label { font-size: 14px; color: var(--text-muted); margin: 6px 0 16px; }
+  .result-msg { font-size: 15px; font-weight: 500; color: var(--primary); }
+
+  /* ── DALIL CARD ── */
+  .dalil-badge {
+    display: inline-flex; align-items: center; gap: 6px;
+    background: var(--primary-pale);
+    color: var(--primary);
+    padding: 4px 12px;
+    border-radius: 99px;
+    font-size: 12px; font-weight: 500;
+    border: 1px solid rgba(27,94,32,.2);
+  }
+
+  @media (max-width: 768px) {
+    #sidebar { transform: translateX(-270px); }
+    #sidebar.open { transform: translateX(0); }
+    .top-bar { left: 0 !important; }
+    .main-content { margin-left: 0; padding: 80px 16px 48px; }
+    .rukun-grid { grid-template-columns: repeat(2, 1fr); }
+    .hero { flex-direction: column; align-items: flex-start; }
+    .filter-pills { display: none; }
+  }
+</style>
+</head>
+<body>
+
+<!-- SIDEBAR -->
+<nav id="sidebar">
+  <div class="sidebar-header">
+    <div class="sidebar-logo">
+      <div class="icon">📖</div>
+      <h1>Smart Akidah</h1>
+    </div>
+    <div class="sidebar-sub">MTs Kelas 7 · Semester 1</div>
+  </div>
+
+  <div class="nav-section">
+    <div class="nav-label">Materi</div>
+    <a href="#pengertian" class="nav-link" onclick="setActive(this)">
+      <span class="nav-num">1</span> Pengertian Akidah
+    </a>
+    <a href="#rukun" class="nav-link" onclick="setActive(this)">
+      <span class="nav-num">2</span> Rukun Iman
+    </a>
+    <a href="#fungsi" class="nav-link" onclick="setActive(this)">
+      <span class="nav-num">3</span> Fungsi Akidah
+    </a>
+    <a href="#akhlak" class="nav-link" onclick="setActive(this)">
+      <span class="nav-num">4</span> Akhlak & Buah Iman
+    </a>
+    <a href="#dalil" class="nav-link" onclick="setActive(this)">
+      <span class="nav-num">5</span> Dalil Naqli
+    </a>
+  </div>
+
+  <div class="nav-section" style="margin-top: 8px;">
+    <div class="nav-label">Latihan</div>
+    <a href="#flashcard" class="nav-link" onclick="setActive(this)">
+      <span class="nav-num">🃏</span> Kartu Hafalan
+    </a>
+    <a href="#kuis" class="nav-link" onclick="setActive(this)">
+      <span class="nav-num">✏️</span> Kuis Interaktif
+    </a>
+  </div>
+
+  <div class="progress-area">
+    <div class="progress-label">
+      <span>Progress belajar</span>
+      <span id="prog-pct">0%</span>
+    </div>
+    <div class="progress-bar">
+      <div class="progress-fill" id="prog-fill" style="width:0%"></div>
+    </div>
+  </div>
+</nav>
+
+<!-- TOPBAR -->
+<div class="top-bar" id="topBar">
+  <button class="toggle-btn" onclick="toggleSidebar()">
+    <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+      <rect y="2" width="16" height="2" rx="1" fill="currentColor"/>
+      <rect y="7" width="16" height="2" rx="1" fill="currentColor"/>
+      <rect y="12" width="16" height="2" rx="1" fill="currentColor"/>
+    </svg>
+  </button>
+  <div class="search-wrap">
+    <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+      <circle cx="6" cy="6" r="4.5" stroke="#888" stroke-width="1.5"/>
+      <path d="M9.5 9.5L12 12" stroke="#888" stroke-width="1.5" stroke-linecap="round"/>
+    </svg>
+    <input type="text" id="searchInput" placeholder="Cari materi..." oninput="searchMateri()">
+  </div>
+  <div class="filter-pills" id="filterPills">
+    <button class="pill active" onclick="filterCat('all', this)">Semua</button>
+    <button class="pill" onclick="filterCat('dasar', this)">Dasar</button>
+    <button class="pill" onclick="filterCat('iman', this)">Rukun Iman</button>
+    <button class="pill" onclick="filterCat('latihan', this)">Latihan</button>
+  </div>
+</div>
+
+<!-- MAIN CONTENT -->
+<main class="main-content" id="mainContent">
+
+  <!-- Hero -->
+  <div class="hero">
+    <div class="hero-text">
+      <h2>Akidah Islam — Kelas 7</h2>
+      <p>Pelajari dasar-dasar keyakinan Islam dengan cara yang menyenangkan dan interaktif.</p>
+    </div>
+    <div class="hero-badge">BAB 1 · AKIDAH</div>
+  </div>
+
+  <!-- 1. Pengertian -->
+  <section id="pengertian" class="card" data-category="dasar">
+    <div class="card-header">
+      <div class="card-icon">📘</div>
+      <h2>1. Pengertian Akidah</h2>
+    </div>
+    <p>Berasal dari kata <strong>'aqada</strong> yang berarti <strong>"mengikat"</strong> atau <strong>"meyakini dengan kuat"</strong>.</p>
+    <p>Secara istilah, akidah adalah <strong>keyakinan dalam hati yang kokoh</strong> terhadap ajaran Islam tanpa keraguan sedikit pun.</p>
+    <div class="arabic-block">
+      <div class="arabic-text">الْعَقِيدَةُ</div>
+      <div class="arabic-ref">Al-'Aqīdah — keyakinan yang mengikat hati</div>
+    </div>
+  </section>
+
+  <!-- 2. Rukun Iman -->
+  <section id="rukun" class="card" data-category="iman">
+    <div class="card-header">
+      <div class="card-icon">🌟</div>
+      <h2>2. Rukun Iman (6 Perkara)</h2>
+    </div>
+    <p>Klik setiap rukun untuk melihat penjelasan lebih lengkap.</p>
+    <div class="rukun-grid" id="rukunGrid"></div>
+    <div class="rukun-detail" id="rukunDetail">
+      <em style="color:var(--text-muted); font-size:13px;">Pilih salah satu rukun di atas untuk melihat detail...</em>
+    </div>
+  </section>
+
+  <!-- 3. Fungsi -->
+  <section id="fungsi" class="card" data-category="dasar">
+    <div class="card-header">
+      <div class="card-icon">⚙️</div>
+      <h2>3. Fungsi Akidah</h2>
+    </div>
+    <ul>
+      <li><strong>Landasan ibadah</strong> — Akidah yang benar adalah dasar sahnya setiap ibadah seorang Muslim.</li>
+      <li><strong>Membentuk kepribadian</strong> — Keyakinan yang kuat melahirkan perilaku terpuji dan akhlak mulia.</li>
+      <li><strong>Ketenangan hati</strong> — Seseorang yang beriman mantap tidak mudah gelisah menghadapi cobaan hidup.</li>
+      <li><strong>Pelindung dari kesesatan</strong> — Akidah yang lurus menjaga seseorang dari syirik dan bid'ah.</li>
+    </ul>
+  </section>
+
+  <!-- 4. Akhlak -->
+  <section id="akhlak" class="card" data-category="dasar">
+    <div class="card-header">
+      <div class="card-icon">💎</div>
+      <h2>4. Akhlak & Buah Iman</h2>
+    </div>
+    <p>Iman yang benar akan menghasilkan buah berupa akhlak yang baik dalam kehidupan sehari-hari.</p>
+    <ul>
+      <li><strong>Jujur (Shidq)</strong> — Berkata dan berbuat sesuai kenyataan karena yakin Allah selalu mengawasi.</li>
+      <li><strong>Amanah</strong> — Menepati janji dan dapat dipercaya dalam segala urusan.</li>
+      <li><strong>Sabar & Syukur</strong> — Bersabar saat ditimpa musibah dan bersyukur atas nikmat Allah.</li>
+      <li><strong>Tawadhu (rendah hati)</strong> — Tidak sombong karena menyadari segala kebaikan berasal dari Allah.</li>
+    </ul>
+  </section>
+
+  <!-- 5. Dalil -->
+  <section id="dalil" class="card" data-category="dasar">
+    <div class="card-header">
+      <div class="card-icon">📜</div>
+      <h2>5. Dalil Naqli</h2>
+    </div>
+    <div class="arabic-block">
+      <div class="arabic-text" style="font-size:2.4rem;">قُلْ هُوَ اللَّهُ أَحَدٌ ۝ اللَّهُ الصَّمَدُ</div>
+    </div>
+    <p style="text-align:center; margin-top:8px;">
+      <span class="dalil-badge">QS. Al-Ikhlas: 1–2</span>
+    </p>
+    <p style="text-align:center; margin-top:10px;">Artinya: <em>"Katakanlah: Dialah Allah, Yang Maha Esa. Allah adalah Tuhan yang bergantung kepada-Nya segala sesuatu."</em></p>
+    <div class="arabic-block" style="margin-top:16px;">
+      <div class="arabic-text" style="font-size:1.8rem;">آمَنَ الرَّسُولُ بِمَا أُنزِلَ إِلَيْهِ مِن رَّبِّهِ وَالْمُؤْمِنُونَ</div>
+    </div>
+    <p style="text-align:center; margin-top:8px;">
+      <span class="dalil-badge">QS. Al-Baqarah: 285</span>
+    </p>
+    <p style="text-align:center; margin-top:10px;">Dalil tentang keimanan Rasul dan orang-orang mukmin kepada Allah, malaikat, kitab, dan rasul-Nya.</p>
+  </section>
+
+  <!-- FLASHCARD -->
+  <section id="flashcard" class="card" data-category="latihan">
+    <div class="card-header">
+      <div class="card-icon">🃏</div>
+      <h2>Kartu Hafalan Interaktif</h2>
+    </div>
+    <p>Klik kartu untuk membaliknya dan melihat jawaban. Gunakan tombol navigasi untuk berpindah kartu.</p>
+    <div class="flashcard-wrap">
+      <div class="flashcard" id="fc-card" onclick="flipCard()">
+        <div class="card-face card-front">
+          <div class="label">Pertanyaan</div>
+          <div class="content" id="fc-front"></div>
+        </div>
+        <div class="card-face card-back">
+          <div class="label">Jawaban</div>
+          <div class="content" id="fc-back"></div>
+        </div>
+      </div>
+    </div>
+    <div class="flashcard-hint">Klik kartu untuk membalik</div>
+    <div class="flashcard-nav">
+      <button class="fc-btn" onclick="fcNav(-1)">← Sebelumnya</button>
+      <div class="fc-count" id="fc-count"></div>
+      <button class="fc-btn" onclick="fcNav(1)">Berikutnya →</button>
+    </div>
+  </section>
+
+  <!-- KUIS -->
+  <section id="kuis" class="card" data-category="latihan">
+    <div class="card-header">
+      <div class="card-icon">✏️</div>
+      <h2>Kuis Interaktif</h2>
+    </div>
+    <div id="quiz-area">
+      <div class="quiz-progress" id="quizProgress"></div>
+      <div class="score-badge">Skor: <span id="scoreDisplay">0</span> / <span id="totalDisplay">0</span></div>
+      <div class="quiz-q" id="quizQuestion" style="margin-top:14px;"></div>
+      <div class="options-grid" id="optionsGrid"></div>
+      <div class="quiz-feedback" id="quizFeedback"></div>
+      <div class="quiz-nav">
+        <div></div>
+        <button class="btn-primary" id="nextBtn" onclick="nextQuestion()" disabled>Soal Berikutnya →</button>
+      </div>
+    </div>
+    <div class="result-box" id="resultBox">
+      <div class="result-score" id="resultScore"></div>
+      <div class="result-label">dari <span id="resultTotal"></span> soal dijawab benar</div>
+      <div class="result-msg" id="resultMsg"></div>
+      <button class="btn-primary" style="margin-top:20px;" onclick="restartQuiz()">Ulangi Kuis</button>
+    </div>
+  </section>
+
+</main>
+
+<script>
+const rukunData = [
+  { num:"1", title:"Iman kepada Allah", desc:"Meyakini bahwa Allah itu Ada (Wujud), Terdahulu (Qidam), Kekal (Baqa), dan Maha Esa (Wahdaniyah). Tidak ada sekutu bagi-Nya, dan lain lain.", sub:"Tauhid" },
+  { num:"2", title:"Iman kepada Malaikat", desc:"Malaikat adalah makhluk ghaib dari cahaya yang selalu taat kepada Allah. Contoh: Jibril (pembawa wahyu), Mikail (membagi rezeki), Israfil (peniup sangkakala), izroil (mencabut nyawa), munkar dan nakir (menannyai dalam kubur) , roqib dan atid (mencatat amal buruk dan baik), malik dan ridwan (menjaga pintu neraka dan surga).", sub:"Malaikat Allah" },
+  { num:"3", title:"Iman kepada Kitab", desc:"Kitab-kitab suci yang diturunkan: Taurat (Nabi Musa), Zabur (Nabi Dawud), Injil (Nabi Isa), dan Al-Qur'an (Nabi Muhammad SAW) sebagai penyempurna.", sub:"4 Kitab Suci" },
+  { num:"4", title:"Iman kepada Rasul", desc:"Para rasul adalah manusia pilihan Allah yang menerima wahyu dan diutus untuk membimbing umat. sefangkan nabi adalah laki-laki pilihan Allah SWT yang menerima wahyu untuk dirinya sendiri. Wahyu tersebut berfungsi sebagai panduan hidup pribadinya dan tidak ada kewajiban mutlak baginya untuk menyampaikannya kepada kaum atau umat tertentu. Nabi Muhammad SAW adalah rasul terakhir (Khatamun Nabiyyin).", sub:"25 Nabi & Rasul" },
+  { num:"5", title:"Iman kepada Hari Akhir", desc:"Meyakini adanya Hari Kiamat, alam barzakh, mahsyar, hisab, mizan, sirath, surga, dan neraka. Segala amal perbuatan akan dipertanggungjawabkan.", sub:"Hari Kiamat" },
+  { num:"6", title:"Iman kepada Qada & Qadar", desc:"Meyakini bahwa segala sesuatu terjadi atas kehendak dan ketetapan Allah SWT. Ini tidak berarti kita pasif, namun tetap berikhtiar dengan tawakal.", sub:"Takdir Allah" },
+];
+
+function buildRukun() {
+  const g = document.getElementById('rukunGrid');
+  rukunData.forEach((r, i) => {
+    const d = document.createElement('div');
+    d.className = 'rukun-item';
+    d.innerHTML = `<div class="rukun-num">${r.num}</div><div class="rukun-title">${r.title}</div><div class="rukun-desc">${r.sub}</div>`;
+    d.onclick = () => {
+      document.querySelectorAll('.rukun-item').forEach(x => x.classList.remove('active'));
+      d.classList.add('active');
+      const det = document.getElementById('rukunDetail');
+      det.innerHTML = `<strong>${r.title}</strong>${r.desc}`;
+      updateProgress();
+    };
+    g.appendChild(d);
+  });
+}
+
+const flashcards = [
+  { q:"Apa arti kata 'aqada dalam bahasa Arab?", a:"Mengikat atau meyakini dengan kuat" },
+  { q:"Berapa jumlah Rukun Iman dalam Islam?", a:"6 (enam) Rukun Iman" },
+  { q:"Siapakah malaikat yang bertugas membawa wahyu?", a:"Malaikat Jibril (Jibrail)" },
+  { q:"Kitab suci apa yang diturunkan kepada Nabi Musa AS?", a:"Kitab Taurat" },
+  { q:"Apa nama lain dari Nabi Muhammad sebagai rasul terakhir?", a:"Khatamun Nabiyyin (penutup para nabi)" },
+  { q:"Apa yang dimaksud dengan iman kepada Qadar?", a:"Meyakini segala sesuatu terjadi atas ketetapan Allah SWT" },
+  { q:"Surat apa yang menjelaskan keesaan Allah secara khusus?", a:"QS. Al-Ikhlas (surat ke-112)" },
+];
+
+let fcIdx = 0;
+let fcFlipped = false;
+
+function buildFlashcard() {
+  updateFc();
+}
+
+function updateFc() {
+  const f = flashcards[fcIdx];
+  document.getElementById('fc-front').textContent = f.q;
+  document.getElementById('fc-back').textContent = f.a;
+  document.getElementById('fc-count').textContent = `${fcIdx+1} / ${flashcards.length}`;
+  const fc = document.getElementById('fc-card');
+  fc.classList.remove('flipped');
+  fcFlipped = false;
+}
+
+function flipCard() {
+  const fc = document.getElementById('fc-card');
+  fcFlipped = !fcFlipped;
+  fc.classList.toggle('flipped', fcFlipped);
+}
+
+function fcNav(dir) {
+  fcIdx = (fcIdx + dir + flashcards.length) % flashcards.length;
+  updateFc();
+}
+
+const quizData = [
+  { q:"Akidah berasal dari kata 'aqada yang berarti...", opts:["Melepaskan", "Mengikat / meyakini dengan kuat", "Melihat dengan jelas", "Berjalan di jalan yang benar"], ans:1 },
+  { q:"Rukun Iman dalam Islam berjumlah...", opts:["4 perkara", "5 perkara", "6 perkara", "7 perkara"], ans:2 },
+  { q:"Malaikat yang bertugas mencatat amal baik manusia adalah...", opts:["Mikail", "Izrail", "Raqib", "Munkar"], ans:2 },
+  { q:"Kitab suci yang diturunkan kepada Nabi Isa AS adalah...", opts:["Taurat", "Zabur", "Injil", "Al-Qur'an"], ans:2 },
+  { q:"Iman kepada hari akhir mencakup keyakinan terhadap...", opts:["Hanya surga dan neraka", "Kiamat, hisab, mizan, surga & neraka", "Hanya hari kiamat saja", "Malaikat Izrail saja"], ans:1 },
+  { q:"Surat Al-Ikhlas menjelaskan tentang...", opts:["Perintah shalat", "Keesaan Allah (Tauhid)", "Kewajiban zakat", "Kisah para nabi"], ans:1 },
+  { q:"Qada dan Qadar merupakan bagian dari Rukun Iman ke...", opts:["4", "5", "6", "7"], ans:2 },
+];
+
+let qIdx = 0, score = 0, answered = false;
+const results = [];
+
+function buildQuiz() {
+  document.getElementById('totalDisplay').textContent = quizData.length;
+  renderQuestion();
+}
+
+function renderQuestion() {
+  const q = quizData[qIdx];
+  answered = false;
+
+  const prog = document.getElementById('quizProgress');
+  prog.innerHTML = quizData.map((_, i) => {
+    let cls = 'qp-dot';
+    if (i < qIdx) cls += results[i] ? ' correct' : ' wrong';
+    else if (i === qIdx) cls += ' done';
+    return `<div class="${cls}"></div>`;
+  }).join('');
+
+  document.getElementById('quizQuestion').textContent = `Soal ${qIdx+1}: ${q.q}`;
+
+  const grid = document.getElementById('optionsGrid');
+  const letters = ['A','B','C','D'];
+  grid.innerHTML = q.opts.map((opt, i) =>
+    `<button class="quiz-option" onclick="selectAnswer(${i})">
+      <span class="opt-letter">${letters[i]}</span>${opt}
+    </button>`
+  ).join('');
+
+  document.getElementById('quizFeedback').className = 'quiz-feedback';
+  document.getElementById('quizFeedback').textContent = '';
+  document.getElementById('nextBtn').disabled = true;
+  document.getElementById('nextBtn').textContent = qIdx < quizData.length - 1 ? 'Soal Berikutnya →' : 'Lihat Hasil';
+}
+
+function selectAnswer(i) {
+  if (answered) return;
+  answered = true;
+  const q = quizData[qIdx];
+  const btns = document.querySelectorAll('.quiz-option');
+  const correct = i === q.ans;
+  if (correct) score++;
+  results[qIdx] = correct;
+
+  btns.forEach((b, idx) => {
+    b.disabled = true;
+    if (idx === q.ans) b.classList.add('correct');
+    if (idx === i && !correct) b.classList.add('wrong');
+  });
+
+  const fb = document.getElementById('quizFeedback');
+  fb.className = 'quiz-feedback show ' + (correct ? 'ok' : 'fail');
+  fb.textContent = correct
+    ? '✓ Benar! Bagus sekali!'
+    : `✗ Kurang tepat. Jawaban yang benar: ${q.opts[q.ans]}`;
+
+  document.getElementById('scoreDisplay').textContent = score;
+  document.getElementById('nextBtn').disabled = false;
+  updateProgress();
+}
+
+function nextQuestion() {
+  qIdx++;
+  if (qIdx >= quizData.length) {
+    showResult();
+  } else {
+    renderQuestion();
+  }
+}
+
+function showResult() {
+  document.getElementById('quiz-area').style.display = 'none';
+  const rb = document.getElementById('resultBox');
+  rb.classList.add('show');
+  document.getElementById('resultScore').textContent = score;
+  document.getElementById('resultTotal').textContent = quizData.length;
+  const pct = Math.round((score / quizData.length) * 100);
+  let msg = '';
+  if (pct === 100) msg = '🏆 Sempurna! Kamu luar biasa!';
+  else if (pct >= 70) msg = '👍 Bagus! Terus pertahankan!';
+  else if (pct >= 50) msg = '📚 Lumayan! Baca lagi ya materinya.';
+  else msg = '💪 Jangan menyerah! Pelajari kembali materinya.';
+  document.getElementById('resultMsg').textContent = msg;
+}
+
+function restartQuiz() {
+  qIdx = 0; score = 0; answered = false;
+  results.length = 0;
+  document.getElementById('scoreDisplay').textContent = 0;
+  document.getElementById('quiz-area').style.display = 'block';
+  document.getElementById('resultBox').classList.remove('show');
+  renderQuestion();
+}
+
+function toggleSidebar() {
+  const sb = document.getElementById('sidebar');
+  const mc = document.getElementById('mainContent');
+  const tb = document.getElementById('topBar');
+  const mobile = window.innerWidth <= 768;
+  if (mobile) {
+    sb.classList.toggle('open');
+  } else {
+    sb.classList.toggle('closed');
+    mc.classList.toggle('full');
+    tb.classList.toggle('full');
+  }
+}
+
+function setActive(el) {
+  document.querySelectorAll('.nav-link').forEach(l => l.classList.remove('active'));
+  el.classList.add('active');
+}
+
+function searchMateri() {
+  const val = document.getElementById('searchInput').value.toLowerCase();
+  document.querySelectorAll('.card').forEach(c => {
+    c.style.display = c.innerText.toLowerCase().includes(val) ? '' : 'none';
+  });
+}
+
+function filterCat(cat, btn) {
+  document.querySelectorAll('.pill').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  document.querySelectorAll('.card[data-category]').forEach(c => {
+    c.style.display = (cat === 'all' || c.dataset.category === cat) ? '' : 'none';
+  });
+}
+
+let progressSteps = 0;
+function updateProgress() {
+  progressSteps = Math.min(progressSteps + 10, 100);
+  document.getElementById('prog-fill').style.width = progressSteps + '%';
+  document.getElementById('prog-pct').textContent = progressSteps + '%';
+}
+
+buildRukun();
+buildFlashcard();
+buildQuiz();
+</script>
+</body>
+</html>
